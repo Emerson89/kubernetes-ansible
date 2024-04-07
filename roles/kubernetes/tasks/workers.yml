@@ -1,0 +1,18 @@
+## workers
+- name: Copy the join command to server location
+  copy: src=join-command dest=/tmp/join-command.sh mode=0777
+
+- name: Check that port 10250 is in use
+  shell: "netstat -tuln | grep ':10250 '"
+  register: port_10250_in_use
+  ignore_errors: true
+
+- name: Join the node to cluster
+  command: sh /tmp/join-command.sh
+  register: result
+  when: 
+    - port_10250_in_use.rc != 0
+
+- name: Display join
+  debug:
+    var: result
