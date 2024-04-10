@@ -2,12 +2,9 @@
 # vi: set ft=ruby :
 
 vms = {
-#'rocky-srv' => {'memory' => '1024', 'cpus' => '1', 'ip' => '12', 'box' => 'rockylinux/8'},
-#'masters' => {'memory' => '3048', 'cpus' => '4', 'ip' => '12', 'box' => 'almalinux/8'},
-#'node1' => {'memory' => '2048', 'cpus' => '2', 'ip' => '13', 'box' => 'almalinux/8'},
-#'debian-srv' => {'memory' => '2024', 'cpus' => '2', 'ip' => '13', 'box' => 'debian/bullseye64'},
 'master' => {'memory' => '3048', 'cpus' => '4', 'ip' => '12', 'box' => 'ubuntu/focal64'},
-'worker' => {'memory' => '2048', 'cpus' => '2', 'ip' => '13', 'box' => 'ubuntu/focal64'},
+'worker-1' => {'memory' => '1048', 'cpus' => '2', 'ip' => '13', 'box' => 'ubuntu/focal64'},
+'worker-2' => {'memory' => '1048', 'cpus' => '2', 'ip' => '14', 'box' => 'ubuntu/focal64'},
 }
 
 Vagrant.require_version ">= 1.8.0"
@@ -24,7 +21,7 @@ Vagrant.configure('2') do |config|
           ansible.playbook = "playbook.yml"
           ansible.groups = {
             "master" => ["master"],
-            "workers" => ["worker"],
+            "workers" => ["worker-1","worker-2"],
           }
        end
        my.vm.provider 'virtualbox' do |vb|

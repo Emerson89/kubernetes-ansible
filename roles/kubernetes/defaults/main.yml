@@ -5,4 +5,3 @@ workers: false
 network_plugin: "weave"
 ingress_class: "nginx"
 controller_openebs: false
-distribution_release: focal

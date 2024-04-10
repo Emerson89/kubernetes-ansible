@@ -4,23 +4,3 @@
   become: yes
   roles:
   - kubernetes
-
-# - name: Kubernetes Installation master
-#   hosts: master
-#   vars:
-#     master_ip: 192.168.3.12
-#     network_plugin: "cilium"
-#     controller_openebs: true
-#     ingress_class: "nginx"
-#     master: true
-#   become: yes
-#   roles:
-#   - kubernetes  
-
-# - name: Kubernetes Installation workers
-#   hosts: workers
-#   vars:
-#     workers: true
-#   become: yes
-#   roles:
-#   - kubernetes  
