@@ -34,42 +34,6 @@
 
 - name: Apply sysctl params without reboot
   command: sysctl --system
-
-- name: Add an Apt signing key docker
-  apt_key:
-     url: https://download.docker.com/linux/ubuntu/gpg
-     state: present
-   
-- name: Install repo docker
-  apt_repository:
-    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
-    state: present
-   
-- name: Install packages dependencies
-  apt:
-    name:
-        - docker-ce
-    state: present
-
-- name: Make sure docker service is running
-  systemd:
-    name: docker
-    state: restarted
-    enabled: yes
-
-- name: Usermod user group docker
-  command: usermod -aG docker ${USER}
-
-- name: Remove file config.toml
-  file:
-    path: /etc/containerd/config.toml
-    state: absent
-
-- name: Enable the Containerd service and start it
-  systemd:
-    name: containerd
-    state: restarted
-    enabled: yes
       
 - name: Create keyrings directory
   file:
@@ -126,6 +90,12 @@
 
 - name: Prevent packages from being upgraded
   command: apt-mark hold kubectl kubeadm kubelet 
+
+- include_tasks: containerd.yml
+  when: container_runtime == 'containerd'
+
+- include_tasks: docker.yml
+  when: container_runtime == 'docker'
 
 - include_tasks: master.yml
   when: master == true

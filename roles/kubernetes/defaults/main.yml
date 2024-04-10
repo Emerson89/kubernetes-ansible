@@ -5,3 +5,4 @@ workers: false
 network_plugin: "weave"
 ingress_class: "nginx"
 controller_openebs: false
+container_runtime: "containerd"

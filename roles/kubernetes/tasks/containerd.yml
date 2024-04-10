@@ -1,0 +1,41 @@
+---
+- name: Create an empty file for Kubernetes containerd.conf
+  copy:
+    content: ""
+    dest: /etc/modules-load.d/containerd.conf
+    force: no
+
+- name: Configure containerd params for Kubernetes
+  lineinfile:
+    path: /etc/modules-load.d/containerd.conf
+    line: "{{ item }}"
+  with_items:
+    - 'overlay'
+    - 'br_netfilter'
+
+- name: Apply modprobe params without reboot
+  command: "{{ item }}"
+  with_items:
+    - modprobe overlay
+    - modprobe br_netfilter
+
+- name: Install packages dependencies
+  apt:
+    name:
+        - containerd
+    state: present
+
+- name: Create a directory if it does not exist
+  file:
+    path: /etc/containerd
+    state: directory
+    mode: '0755'
+
+- name: Apply containerd config
+  shell: containerd config default | tee /etc/containerd/config.toml
+
+- name: Make sure containerd service is running
+  systemd:
+    name: containerd
+    state: restarted
+    enabled: yes

@@ -19,7 +19,7 @@
 | network_plugin | network plugin addon (weave-cilium-flannel)  | weave | no
 | ingress_class | controler-ingress-class (nginx)  | nginx | no
 | controller_openebs | controler-volumes (openebs)  | openebs | no
-
+| container_runtime | container runtime (docker-containerd) | containerd | no
 
 ## Example playbook
 
@@ -33,6 +33,7 @@
     controller_openebs: true
     ingress_class: "nginx"
     master: true
+    container_runtime_docker: true
   become: yes
   roles:
   - kubernetes  
@@ -41,6 +42,7 @@
   hosts: workers
   vars:
     workers: true
+    container_runtime_docker: true
   become: yes
   roles:
   - kubernetes  
