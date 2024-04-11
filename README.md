@@ -33,7 +33,7 @@
     controller_openebs: true
     ingress_class: "nginx"
     master: true
-    container_runtime_docker: true
+    container_runtime: "docker"
   become: yes
   roles:
   - kubernetes  
@@ -42,7 +42,7 @@
   hosts: workers
   vars:
     workers: true
-    container_runtime_docker: true
+    container_runtime: "docker"
   become: yes
   roles:
   - kubernetes  
