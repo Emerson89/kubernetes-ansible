@@ -4,5 +4,6 @@ master: false
 workers: false
 network_plugin: "weave"
 ingress_class: "nginx"
-controller_openebs: false
+controller_openebs: true
 container_runtime: "containerd"
+vagrant: false

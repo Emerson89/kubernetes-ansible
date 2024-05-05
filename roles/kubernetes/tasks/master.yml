@@ -100,6 +100,10 @@
     chart_ref: openebs/openebs
     release_namespace: openebs
     create_namespace: true
+    values: 
+      localprovisioner:
+        hostpathClass:
+          isDefaultClass: true
   become_user: "{{ ansible_user }}"
   when: 
    - controller_openebs == true 

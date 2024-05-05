@@ -23,6 +23,10 @@ Vagrant.configure('2') do |config|
             "master" => ["master"],
             "workers" => ["worker-1","worker-2"],
           }
+          ansible.extra_vars = {
+            vagrant: true
+          }
+
        end
        my.vm.provider 'virtualbox' do |vb|
           vb.memory = conf['memory']

@@ -21,8 +21,11 @@
     state: restarted
     enabled: yes
 
-- name: Usermod user group docker
-  command: usermod -aG docker ${USER}
+- name: Add user to docker group
+  user:
+    name: "{{ ansible_user }}"
+    groups: docker
+    append: yes
 
 - name: Remove file config.toml
   file:

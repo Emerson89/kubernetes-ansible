@@ -16,10 +16,11 @@
 | master | Enabled master-controlplane  | false | yes
 | workers | Enabled workers  | false | yes
 | version_k8s | version k8s | v1.26 | no
-| network_plugin | network plugin addon (weave-cilium-flannel)  | weave | no
+| network_plugin | network plugin addon (weave/cilium/flannel)  | weave | no
 | ingress_class | controler-ingress-class (nginx)  | nginx | no
-| controller_openebs | controler-volumes (openebs)  | openebs | no
-| container_runtime | container runtime (docker-containerd) | containerd | no
+| controller_openebs | controler-volumes (openebs)  | true | no
+| container_runtime | container runtime (docker/containerd) | containerd | no
+| vagrant | running use vagrant | false | no
 
 ## Example playbook
 
@@ -56,14 +57,14 @@
 
 ```
 [master]
-172.16.33.15 ansible_ssh_private_key_file=.vagrant/machines/worker-1/virtualbox/private_key ansible_user=vagrant
+172.16.33.12 ansible_host=172.16.33.12 ansible_ssh_private_key_file=.vagrant/machines/master/virtualbox/private_key 
 [workers]
-172.16.33.12 ansible_ssh_private_key_file=.vagrant/machines/worker-1/virtualbox/private_key ansible_user=vagrant
-172.16.33.13 ansible_ssh_private_key_file=.vagrant/machines/worker-2/virtualbox/private_key ansible_user=vagrant
-172.16.33.16 ansible_ssh_private_key_file=.vagrant/machines/worker-3/virtualbox/private_key ansible_user=vagrant
+172.16.33.13 ansible_host=172.16.33.13 ansible_ssh_private_key_file=.vagrant/machines/worker-1/virtualbox/private_key 
+172.16.33.14 ansible_host=172.16.33.14 ansible_ssh_private_key_file=.vagrant/machines/worker-2/virtualbox/private_key 
 
 [all:vars]
 ansible_user=vagrant
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 #ansible_password="Mypassword"
 
 ```
@@ -101,10 +102,11 @@ export KUBECONFIG=./kubeconfig.yaml
 ### For execute
 
 ```bash
-ansible-playbook -i hosts playbook.yaml
+ansible-playbook -i inventory playbook.yml
 ```
+
+ansible all -i inventory -m setup -a "filter=*ipv4*" -u vagrant
 
 ## License
 
 GPLv3
- 

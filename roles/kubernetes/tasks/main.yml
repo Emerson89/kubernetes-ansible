@@ -1,4 +1,8 @@
 ---
+- name: print facts
+  debug:
+    msg: "IPv4 address: {{ ansible_enp0s8.ipv4.address }}"
+
 - name: Install packages that allow apt to be used over HTTPS
   apt:
     name: "{{ packages }}"
@@ -65,10 +69,27 @@
     - kubeadm 
     - kubectl
 
+- name: Configure kubelet params for Kubernetes
+  lineinfile:
+    path: /lib/systemd/system/kubelet.service.d/10-kubeadm.conf
+    line: "{{ item }}"
+  with_items:
+    - 'Environment="KUBELET_EXTRA_ARGS=--node-ip={{ ansible_default_ipv4.address }}"'
+  when: vagrant == false  
+
+- name: Configure kubelet params for Kubernetes
+  lineinfile:
+    path: /lib/systemd/system/kubelet.service.d/10-kubeadm.conf
+    line: "{{ item }}"
+  with_items:
+    - 'Environment="KUBELET_EXTRA_ARGS=--node-ip={{ ansible_enp0s8.ipv4.address }}"'
+  when: vagrant == true  
+
 - name: Enable the kubelet service and start it
   systemd:
     name: kubelet
     state: restarted
+    daemon_reload: yes
     enabled: yes
 
 - name: Add an Apt signing key helm
