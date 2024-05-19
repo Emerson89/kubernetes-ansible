@@ -1,5 +1,4 @@
 ---
-master_ip: 172.16.33.12
 network_plugin: "weave"
 controller_openebs: true
 ingress_class: "nginx"

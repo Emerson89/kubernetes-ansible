@@ -1,4 +1,3 @@
-master_ip: 127.0.0.1
 version_k8s: v1.26
 master: false
 workers: false
@@ -6,4 +5,4 @@ network_plugin: "weave"
 ingress_class: "nginx"
 controller_openebs: true
 container_runtime: "containerd"
-vagrant: false
+vagrant: true

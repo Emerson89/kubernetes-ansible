@@ -7,10 +7,16 @@
   ignore_errors: true
 
 - name: Initialize the Kubernetes cluster using kubeadm
-  command: kubeadm init --apiserver-advertise-address="{{ master_ip }}" --apiserver-cert-extra-sans=controlplane --pod-network-cidr=10.244.0.0/16
+  command: kubeadm init --apiserver-advertise-address="{{ ansible_default_ipv4.address }}" --apiserver-cert-extra-sans=controlplane --pod-network-cidr=10.244.0.0/16
   register: result
   when: 
-    - port_6443_in_use.rc != 0
+    - port_6443_in_use.rc != 0 and vagrant == false
+
+- name: Initialize the Kubernetes cluster using kubeadm
+  command: kubeadm init --apiserver-advertise-address="{{ ansible_enp0s8.ipv4.address }}" --apiserver-cert-extra-sans=controlplane --pod-network-cidr=10.244.0.0/16
+  register: result
+  when: 
+    - port_6443_in_use.rc != 0 and vagrant == true
 
 - name: Display init
   debug:

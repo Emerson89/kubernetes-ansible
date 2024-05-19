@@ -12,7 +12,6 @@
 
 | Name | Description | Default | Mandatory 
 |------|-----------|---------|------------|
-| master_ip | ip use master-controlplane | 127.0.0.1 | yes
 | master | Enabled master-controlplane  | false | yes
 | workers | Enabled workers  | false | yes
 | version_k8s | version k8s | v1.26 | no
@@ -20,7 +19,7 @@
 | ingress_class | controler-ingress-class (nginx)  | nginx | no
 | controller_openebs | controler-volumes (openebs)  | true | no
 | container_runtime | container runtime (docker/containerd) | containerd | no
-| vagrant | running use vagrant | false | no
+| vagrant | running use vagrant | true | no
 
 ## Example playbook
 
@@ -29,7 +28,6 @@
 - name: Kubernetes Installation master
   hosts: master
   vars:
-    master_ip: 172.16.33.12
     network_plugin: "weave"
     controller_openebs: true
     ingress_class: "nginx"
