@@ -24,7 +24,8 @@ Vagrant.configure('2') do |config|
             "workers" => ["worker-1","worker-2"],
           }
           ansible.extra_vars = {
-            vagrant: true
+            vagrant: true,
+            ansible_user: "vagrant"
           }
 
        end

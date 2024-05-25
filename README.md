@@ -80,6 +80,29 @@ ansible_ssh_common_args='-o StrictHostKeyChecking=no'
 ```bash
 vagrant up 
 ```
+
+[OPTIONAL] - *configured for the host-only network is not within the allowed ranges*
+
+```bash
+The IP address configured for the host-only network is not within the
+allowed ranges. Please update the address used to be within the allowed
+ranges and run the command again.
+
+  Address: 172.16.33.12
+  Ranges: 192.168.56.0/21
+
+Valid ranges can be modified in the /etc/vbox/networks.conf file. For
+more information including valid format see:
+
+  https://www.virtualbox.org/manual/ch06.html#network_hostonly
+```
+```bash
+sudo mkdir /etc/vbox
+```
+```bash
+sudo echo "* 0.0.0.0/0 ::/0" | sudo tee /etc/vbox/networks.conf
+```
+#
 - Access via ssh
 
 ```bash
