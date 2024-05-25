@@ -7,6 +7,13 @@
 ## SO tested and support
 
 - Ubuntu 20
+- Ubuntu 22
+
+#
+# ATTENTION
+
+**This laboratory is intended for learning or testing purposes and cannot be used in production environments**
+#
 
 ## Variables
 
