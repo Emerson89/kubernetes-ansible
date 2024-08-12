@@ -37,3 +37,6 @@ terraform.rc
 kubeconfig.yaml
 join-command
 hosts
+join-command-multi
+Vagrantfilebkp
+script.sh

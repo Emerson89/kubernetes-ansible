@@ -1,0 +1,24 @@
+# ## multi
+- name: Copy the join command to server location
+  copy: src=join-command-multi dest=/tmp/join-command.sh mode=0777
+
+- name: Replace a string in a file
+  ansible.builtin.replace:
+    path: /tmp/join-command.sh
+    regexp: '--apiserver-advertise-address\s+(\S+)'
+    replace: "--apiserver-advertise-address {{ ip }}"
+
+- name: Check that port 6443 is in use
+  shell: "netstat -tuln | grep ':6443 '"
+  register: port_6443_in_use
+  ignore_errors: true
+
+- name: Join the node to cluster
+  command: sh /tmp/join-command.sh
+  register: result
+  when: 
+    - port_6443_in_use.rc != 0
+
+- name: Display join
+  debug:
+    var: result

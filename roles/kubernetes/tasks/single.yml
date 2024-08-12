@@ -1,0 +1,109 @@
+---
+## master
+- name: Check that port 6443 is in use
+  shell: "netstat -tuln | grep ':6443 '"
+  register: port_6443_in_use
+  no_log: true
+  ignore_errors: true
+
+- name: Initialize the Kubernetes cluster using kubeadm
+  command: kubeadm init --apiserver-advertise-address="{{ ip }}" --apiserver-cert-extra-sans=controlplane --pod-network-cidr=10.244.0.0/16
+  register: result
+  when: 
+    - port_6443_in_use.rc != 0
+
+- name: Display init
+  debug:
+    var: result
+
+- name: Create .kube directory
+  file:
+    path: /home/{{ ansible_user }}/.kube
+    state: directory
+    mode: 0755
+
+- name: Copy admin.conf to user's kube config
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /home/{{ ansible_user }}/.kube/config
+    remote_src: yes
+    owner: "{{ ansible_user }}"
+
+- name: Generate join command
+  command: kubeadm token create --print-join-command
+  register: join_command_output
+
+- name: Set join command
+  set_fact:
+    join_command: "{{ join_command_output.stdout_lines[0] }}"
+
+- name: Read kube-config file
+  command: cat /home/{{ ansible_user }}/.kube/config 
+  register: kube_config_content 
+    
+- name: Copy kubeconfig command to local file
+  become_user: "{{ ansible_env.USER }}"
+  become: no
+  local_action: copy content="{{ kube_config_content.stdout }}" dest="./kubeconfig.yaml"
+
+- name: Copy join command to local file
+  become_user: "{{ ansible_env.USER }}"
+  become: no
+  local_action: copy content="{{ join_command_output.stdout_lines[0] }}" dest="./join-command"
+
+- name: Install weave pod network
+  command: kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+  become_user: "{{ ansible_user }}"
+  when: 
+   - network_plugin == 'weave'
+
+- name: Install flannel pod network
+  command: kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
+  become_user: "{{ ansible_user }}"
+  when: 
+   - network_plugin == 'flannel' 
+
+- name: Add a repository cilium
+  kubernetes.core.helm_repository:
+    name: cilium
+    repo_url: https://helm.cilium.io/
+  become_user: "{{ ansible_user }}"
+  when: 
+   - network_plugin == 'cilium'   
+
+- name: Install cilium pod network
+  kubernetes.core.helm:
+    name: cilium
+    chart_ref: cilium/cilium
+    release_namespace: kube-system
+  become_user: "{{ ansible_user }}"
+  when: 
+   - network_plugin == 'cilium'
+
+- name: Install nginx-controller
+  command: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/cloud/deploy.yaml
+  become_user: "{{ ansible_user }}"
+  when: 
+   - ingress_class == 'nginx'
+
+- name: Add a repository openebs
+  kubernetes.core.helm_repository:
+    name: openebs
+    repo_url: https://openebs.github.io/charts
+  become_user: "{{ ansible_user }}"
+  when: 
+   - controller_openebs == true   
+
+- name: Install openebs 
+  kubernetes.core.helm:
+    name: openebs
+    chart_ref: openebs/openebs
+    release_namespace: openebs
+    create_namespace: true
+    values: 
+      localprovisioner:
+        hostpathClass:
+          isDefaultClass: true
+  become_user: "{{ ansible_user }}"
+  when: 
+   - controller_openebs == true 

@@ -19,16 +19,18 @@
 
 | Name | Description | Default | Mandatory 
 |------|-----------|---------|------------|
-| master | Enabled master-controlplane  | false | yes
+| multi_controlplane | Enabled multi-controlplane  | false | no
+| join_masters | Join others VM controlplane used when multi-controlplane for true | false | no
+| ip_external | Ip external used when multi-controlplane for true | false | no
+| single_controlplane | Enabled single-controlplane  | false | yes
 | workers | Enabled workers  | false | yes
 | version_k8s | version k8s | v1.26 | no
 | network_plugin | network plugin addon (weave/cilium/flannel)  | weave | no
 | ingress_class | controler-ingress-class (nginx)  | nginx | no
 | controller_openebs | controler-volumes (openebs)  | true | no
 | container_runtime | container runtime (docker/containerd) | containerd | no
-| vagrant | running use vagrant | true | no
 
-## Example playbook
+## Example playbook single controlplane
 
 ```yaml
 ---
@@ -38,8 +40,9 @@
     network_plugin: "weave"
     controller_openebs: true
     ingress_class: "nginx"
-    master: true
+    single_controlplane: true
     container_runtime: "docker"
+    version_k8s: v1.27
   become: yes
   roles:
   - kubernetes  
@@ -49,6 +52,56 @@
   vars:
     workers: true
     container_runtime: "docker"
+    version_k8s: v1.27
+  become: yes
+  roles:
+  - kubernetes  
+```
+
+## Example playbook multi controlplane
+
+```yaml
+---
+- name: Kubernetes Installation master-one
+  hosts: master-one
+  vars:
+    network_plugin: "weave"
+    controller_openebs: true
+    ingress_class: "nginx"
+    multi_controlplane: true
+    container_runtime: "docker"
+    ip_external: 172.16.33.10
+    version_k8s: v1.27
+  become: yes
+  roles:
+  - kubernetes  
+
+- name: Kubernetes Installation master-two
+  hosts: master-two
+  vars:
+    join_masters: true
+    container_runtime: "docker"
+    version_k8s: v1.27
+  become: yes
+  roles:
+  - kubernetes 
+
+- name: Kubernetes Installation master-tree
+  hosts: master-tree
+  vars:
+    join_masters: true
+    container_runtime: "docker"
+    version_k8s: v1.27
+  become: yes
+  roles:
+  - kubernetes 
+
+- name: Kubernetes Installation workers
+  hosts: workers
+  vars:
+    workers: true
+    container_runtime: "docker"
+    version_k8s: v1.27
   become: yes
   roles:
   - kubernetes  
@@ -58,14 +111,24 @@
 
  - all will be applied to all, and the others separated by their respective groups
 
+```shell
+group_vars/
+├── all
+├── master-one
+├── masters
+└── workers
+```
+
 ## Example file inventory
 
-```
+```shell
 [master]
-172.16.33.12 ansible_host=172.16.33.12 ansible_ssh_private_key_file=.vagrant/machines/master/virtualbox/private_key 
+172.16.33.10 ansible_ssh_private_key_file=.vagrant/machines/master-one/virtualbox/private_key 
+[masters]
+172.16.33.11 ansible_ssh_private_key_file=.vagrant/machines/master-two/virtualbox/private_key 
+172.16.33.12 ansible_ssh_private_key_file=.vagrant/machines/master-tree/virtualbox/private_key 
 [workers]
-172.16.33.13 ansible_host=172.16.33.13 ansible_ssh_private_key_file=.vagrant/machines/worker-1/virtualbox/private_key 
-172.16.33.14 ansible_host=172.16.33.14 ansible_ssh_private_key_file=.vagrant/machines/worker-2/virtualbox/private_key 
+172.16.33.13 ansible_ssh_private_key_file=.vagrant/machines/worker-one/virtualbox/private_key 
 
 [all:vars]
 ansible_user=vagrant

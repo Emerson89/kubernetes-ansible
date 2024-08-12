@@ -2,4 +2,5 @@
 network_plugin: "weave"
 controller_openebs: true
 ingress_class: "nginx"
-master: true
+multi_controlplane: true
+ip_external: 172.16.33.10

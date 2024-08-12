@@ -1,7 +1,15 @@
 ---
-- name: print facts
+- name: Capture ip
+  shell: echo $(ip a | awk '/inet / && !/127.0.0.1/ && !/10.0.2.15/ {split($2, a, "/"); print a[1]}' |head -n1)
+  register: result_ip
+
+- name: Display Ips
   debug:
-    msg: "IPv4 address: {{ ansible_enp0s8.ipv4.address }}"
+    msg: "{{ result_ip.stdout }}"
+
+- name: Set ip
+  set_fact:
+    ip: "{{ result_ip.stdout }}"
 
 - name: Install packages that allow apt to be used over HTTPS
   apt:
@@ -74,16 +82,7 @@
     path: /lib/systemd/system/kubelet.service.d/10-kubeadm.conf
     line: "{{ item }}"
   with_items:
-    - 'Environment="KUBELET_EXTRA_ARGS=--node-ip={{ ansible_default_ipv4.address }}"'
-  when: vagrant == false  
-
-- name: Configure kubelet params for Kubernetes
-  lineinfile:
-    path: /lib/systemd/system/kubelet.service.d/10-kubeadm.conf
-    line: "{{ item }}"
-  with_items:
-    - 'Environment="KUBELET_EXTRA_ARGS=--node-ip={{ ansible_enp0s8.ipv4.address }}"'
-  when: vagrant == true  
+    - 'Environment="KUBELET_EXTRA_ARGS=--node-ip={{ ip }}"'
 
 - name: Enable the kubelet service and start it
   systemd:
@@ -118,8 +117,14 @@
 - include_tasks: docker.yml
   when: container_runtime == 'docker'
 
-- include_tasks: master.yml
-  when: master == true
+- include_tasks: single.yml
+  when: single_controlplane == true
+
+- include_tasks: multi.yml
+  when: multi_controlplane == true 
 
 - include_tasks: workers.yml
   when: workers == true
+
+- include_tasks: join_masters.yml
+  when: join_masters == true

@@ -1,8 +1,10 @@
 version_k8s: v1.26
-master: false
+multi_controlplane: false
+single_controlplane: false
 workers: false
+join_masters: false
+ip_external: ""
 network_plugin: "weave"
 ingress_class: "nginx"
 controller_openebs: true
 container_runtime: "containerd"
-vagrant: true
