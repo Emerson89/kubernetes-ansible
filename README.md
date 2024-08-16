@@ -29,113 +29,10 @@
 | ingress_class | controler-ingress-class (nginx)  | nginx | no
 | controller_openebs | controler-volumes (openebs)  | true | no
 | container_runtime | container runtime (docker/containerd) | containerd | no
-
-## Example playbook single controlplane
-
-```yaml
----
-- name: Kubernetes Installation master
-  hosts: master
-  vars:
-    network_plugin: "weave"
-    controller_openebs: true
-    ingress_class: "nginx"
-    single_controlplane: true
-    container_runtime: "docker"
-    version_k8s: v1.27
-  become: yes
-  roles:
-  - kubernetes  
-
-- name: Kubernetes Installation workers
-  hosts: workers
-  vars:
-    workers: true
-    container_runtime: "docker"
-    version_k8s: v1.27
-  become: yes
-  roles:
-  - kubernetes  
-```
-
-## Example playbook multi controlplane
-
-```yaml
----
-- name: Kubernetes Installation master-one
-  hosts: master-one
-  vars:
-    network_plugin: "weave"
-    controller_openebs: true
-    ingress_class: "nginx"
-    multi_controlplane: true
-    container_runtime: "docker"
-    ip_external: 172.16.33.10
-    version_k8s: v1.27
-  become: yes
-  roles:
-  - kubernetes  
-
-- name: Kubernetes Installation master-two
-  hosts: master-two
-  vars:
-    join_masters: true
-    container_runtime: "docker"
-    version_k8s: v1.27
-  become: yes
-  roles:
-  - kubernetes 
-
-- name: Kubernetes Installation master-tree
-  hosts: master-tree
-  vars:
-    join_masters: true
-    container_runtime: "docker"
-    version_k8s: v1.27
-  become: yes
-  roles:
-  - kubernetes 
-
-- name: Kubernetes Installation workers
-  hosts: workers
-  vars:
-    workers: true
-    container_runtime: "docker"
-    version_k8s: v1.27
-  become: yes
-  roles:
-  - kubernetes  
-```
-
-**In the groups_vars directory you can set the variables for each host**
-
- - all will be applied to all, and the others separated by their respective groups
-
-```shell
-group_vars/
-├── all
-├── master-one
-├── masters
-└── workers
-```
-
-## Example file inventory
-
-```shell
-[master]
-172.16.33.10 ansible_ssh_private_key_file=.vagrant/machines/master-one/virtualbox/private_key 
-[masters]
-172.16.33.11 ansible_ssh_private_key_file=.vagrant/machines/master-two/virtualbox/private_key 
-172.16.33.12 ansible_ssh_private_key_file=.vagrant/machines/master-tree/virtualbox/private_key 
-[workers]
-172.16.33.13 ansible_ssh_private_key_file=.vagrant/machines/worker-one/virtualbox/private_key 
-
-[all:vars]
-ansible_user=vagrant
-ansible_ssh_common_args='-o StrictHostKeyChecking=no'
-#ansible_password="Mypassword"
-
-```
+| ha_proxy | Enabled haproxy | false | no
+| haproxy_config | config haproxy | [] | no
+| virtual_ipaddress | Network virtual | "" | no
+| ver_haproxy | Version HAproxy | 2.8 | no
 
 ***You can use vagrant***
 
@@ -190,10 +87,132 @@ kubeconfig is saved in the current directory
 export KUBECONFIG=./kubeconfig.yaml
 ```
 
+## Example playbook single controlplane
+
+```yaml
+---
+- name: Kubernetes Installation master
+  hosts: master
+  vars:
+    network_plugin: "weave"
+    controller_openebs: true
+    ingress_class: "nginx"
+    single_controlplane: true
+    container_runtime: "docker"
+    version_k8s: v1.27
+  become: yes
+  roles:
+  - kubernetes  
+
+- name: Kubernetes Installation workers
+  hosts: workers
+  vars:
+    workers: true
+    container_runtime: "docker"
+    version_k8s: v1.27
+  become: yes
+  roles:
+  - kubernetes  
+```
+
+## Example playbook multi controlplane and HAproxy
+
+```yaml
+---
+- name: HAProxy Installation
+  hosts: ha
+  vars:
+    ha_proxy: true
+    virtual_ipaddress: 172.16.33.15
+    haproxy_config:
+      - name: master-one 
+        ip: 172.16.33.10
+      - name: master-two 
+        ip: 172.16.33.11
+      - name: master-tree
+        ip: 172.16.33.12
+  become: yes
+  roles:
+  - kubernetes  
+
+- name: Kubernetes Installation master-one
+  hosts: master-one
+  vars:
+    network_plugin: "weave"
+    controller_openebs: true
+    ingress_class: "nginx"
+    multi_controlplane: true
+    container_runtime: "containerd"
+    ip_external: 172.16.33.15
+    version_k8s: v1.27
+  become: yes
+  roles:
+  - kubernetes  
+
+- name: Kubernetes Installation masters
+  hosts: masters
+  vars:
+    join_masters: true
+    container_runtime: "containerd"
+    version_k8s: v1.27
+  become: yes
+  roles:
+  - kubernetes 
+
+- name: Kubernetes Installation workers
+  hosts: workers
+  vars:
+    workers: true
+    container_runtime: "containerd"
+    version_k8s: v1.27
+  become: yes
+  roles:
+  - kubernetes 
+```
+
+**In the groups_vars directory you can set the variables for each host**
+
+ - all will be applied to all, and the others separated by their respective groups
+
+```shell
+group_vars/
+├── all
+├── ha
+├── master-one
+├── masters
+└── workers
+```
+
+## Example file inventory
+
+```bash
+[master-one]
+172.16.33.10 ansible_ssh_private_key_file=.vagrant/machines/master-one/virtualbox/private_key 
+[masters]
+172.16.33.11 ansible_ssh_private_key_file=.vagrant/machines/master-two/virtualbox/private_key 
+172.16.33.12 ansible_ssh_private_key_file=.vagrant/machines/master-tree/virtualbox/private_key 
+[workers]
+172.16.33.13 ansible_ssh_private_key_file=.vagrant/machines/worker-one/virtualbox/private_key 
+[ha]
+172.16.33.14 ansible_ssh_private_key_file=.vagrant/machines/haproxy/virtualbox/private_key
+
+[all:vars]
+ansible_user=vagrant
+ansible_ssh_common_args='-o StrictHostKeyChecking=no'
+#ansible_password="Mypassword"
+
+```
+
 ### For execute
 
 ```bash
 ansible-playbook -i inventory playbook.yml
+```
+
+**kubeconfig is saved in the current directory**
+
+```bash
+export KUBECONFIG=./kubeconfig.yaml
 ```
 
 ansible all -i inventory -m setup -a "filter=*ipv4*" -u vagrant

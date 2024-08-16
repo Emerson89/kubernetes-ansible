@@ -8,3 +8,7 @@ network_plugin: "weave"
 ingress_class: "nginx"
 controller_openebs: true
 container_runtime: "containerd"
+haproxy_config: []
+virtual_ipaddress: ""
+ver_haproxy: 2.8
+ha_proxy: false

@@ -3,7 +3,7 @@
 - name: Check that port 6443 is in use
   shell: "netstat -tuln | grep ':6443 '"
   register: port_6443_in_use
-  no_log: true
+  no_log: false
   ignore_errors: true
 
 - name: Initialize the Kubernetes cluster using kubeadm

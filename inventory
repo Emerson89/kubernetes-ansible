@@ -5,6 +5,8 @@
 172.16.33.12 ansible_ssh_private_key_file=.vagrant/machines/master-tree/virtualbox/private_key 
 [workers]
 172.16.33.13 ansible_ssh_private_key_file=.vagrant/machines/worker-one/virtualbox/private_key 
+[ha]
+172.16.33.14 ansible_ssh_private_key_file=.vagrant/machines/haproxy/virtualbox/private_key
 
 [all:vars]
 ansible_user=vagrant
