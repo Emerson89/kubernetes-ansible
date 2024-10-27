@@ -24,19 +24,19 @@
     - net-tools
 
 - include_tasks: ha_proxy.yml
-  when: ha_proxy == true
+  when: ha_proxy
 
 - include_tasks: dependencies_k8s.yml
-  when: single_controlplane == true or multi_controlplane == true or workers == true or join_masters == true
+  when: single_controlplane or multi_controlplane or workers or join_masters
 
 - include_tasks: single.yml
-  when: single_controlplane == true
+  when: single_controlplane
 
 - include_tasks: multi.yml
-  when: multi_controlplane == true 
+  when: multi_controlplane 
 
 - include_tasks: workers.yml
-  when: workers == true
+  when: workers
 
 - include_tasks: join_masters.yml
-  when: join_masters == true
+  when: join_masters

@@ -1,4 +1,4 @@
-version_k8s: v1.26
+version_k8s: v1.30
 multi_controlplane: false
 single_controlplane: false
 workers: false

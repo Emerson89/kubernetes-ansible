@@ -24,19 +24,27 @@
 | ip_external | Ip external used when multi-controlplane for true | false | no
 | single_controlplane | Enabled single-controlplane  | false | yes
 | workers | Enabled workers  | false | yes
-| version_k8s | version k8s | v1.26 | no
+| version_k8s | version k8s | v1.30 | no
 | network_plugin | network plugin addon (weave/cilium/flannel/calico)  | weave | no
-| ingress_class | controler-ingress-class (nginx)  | nginx | no
-| controller_openebs | controler-volumes (openebs)  | true | no
+| ingress_class | controller-ingress-class (nginx)  | nginx | no
+| controller_openebs | controller-volumes (openebs)  | true | no
 | container_runtime | container runtime (docker/containerd) | containerd | no
 | ha_proxy | Enabled haproxy | false | no
 | haproxy_config | config haproxy | [] | no
 | virtual_ipaddress | Network virtual | "" | no
 | ver_haproxy | Version HAproxy | 2.8 | no
 
-***You can use vagrant***
+
+## Mode single-controlplane
+
+![alt text](image-2.png)
+
+## Mode multi-controlplane and HA
 
 ![alt text](image.png)
+
+#
+**You can use vagrant**
 
 ### For instalation:
 
@@ -83,13 +91,34 @@ vagrant ssh
 vagrant halt
 ``` 
 
-kubeconfig is saved in the current directory
+**kubeconfig is saved in the current directory**
 
 ```bash
 export KUBECONFIG=./kubeconfig.yaml
 ```
 
-## Example playbook single controlplane
+## Example basic
+
+```yaml
+---
+- name: Kubernetes Installation master
+  hosts: master
+  vars:
+    single_controlplane: true
+  become: yes
+  roles:
+  - kubernetes  
+
+- name: Kubernetes Installation workers
+  hosts: workers
+  vars:
+    workers: true
+  become: yes
+  roles:
+  - kubernetes  
+```
+
+## Example playbook single controlplane (default)
 
 ```yaml
 ---
@@ -236,6 +265,7 @@ Access URL
 
 http://172.16.33.14:8080/stats
 
+![alt text](image-1.png)
 
 ## License
 
