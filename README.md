@@ -12,7 +12,7 @@
 #
 # ATTENTION
 
-**This laboratory is intended for learning or testing purposes and cannot be used in production environments**
+**This laboratory is intended for learning or testing purposes and not recommended for use in production environments**
 #
 
 ## Variables
