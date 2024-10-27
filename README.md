@@ -25,7 +25,7 @@
 | single_controlplane | Enabled single-controlplane  | false | yes
 | workers | Enabled workers  | false | yes
 | version_k8s | version k8s | v1.26 | no
-| network_plugin | network plugin addon (weave/cilium/flannel)  | weave | no
+| network_plugin | network plugin addon (weave/cilium/flannel/calico)  | weave | no
 | ingress_class | controler-ingress-class (nginx)  | nginx | no
 | controller_openebs | controler-volumes (openebs)  | true | no
 | container_runtime | container runtime (docker/containerd) | containerd | no
@@ -35,6 +35,8 @@
 | ver_haproxy | Version HAproxy | 2.8 | no
 
 ***You can use vagrant***
+
+![alt text](image.png)
 
 ### For instalation:
 
@@ -94,7 +96,7 @@ export KUBECONFIG=./kubeconfig.yaml
 - name: Kubernetes Installation master
   hosts: master
   vars:
-    network_plugin: "weave"
+    network_plugin: "flannel"
     controller_openebs: true
     ingress_class: "nginx"
     single_controlplane: true
@@ -215,7 +217,25 @@ ansible-playbook -i inventory playbook.yml
 export KUBECONFIG=./kubeconfig.yaml
 ```
 
-ansible all -i inventory -m setup -a "filter=*ipv4*" -u vagrant
+## Use HAProxy
+
+**vars**
+
+```bash
+    ha_proxy: true
+    virtual_ipaddress: 172.16.33.15
+    haproxy_config:
+      - name: master-one 
+        ip: 172.16.33.10
+      - name: master-two 
+        ip: 172.16.33.11
+      - name: master-tree
+        ip: 172.16.33.12
+```
+Access URL
+
+http://172.16.33.14:8080/stats
+
 
 ## License
 

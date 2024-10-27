@@ -1,0 +1,37 @@
+---
+- name: Add nginx stable repository from PPA and install its signing key on Ubuntu target
+  ansible.builtin.apt_repository:
+    repo: ppa:vbernat/haproxy-{{ ver_haproxy }}
+
+- name: Install HA-proxy
+  apt:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - haproxy
+    - keepalived
+
+- name: Set ha-proxy Configuration
+  template:
+     src: haproxy.cfg.j2
+     dest: /etc/haproxy/haproxy.cfg
+
+- name: Set keepalived Configuration
+  template:
+     src: keepalived.conf.j2
+     dest: /etc/keepalived/keepalived.conf 
+
+- name: Enable the haproxy service and start it
+  systemd:
+    name: haproxy
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+
+- name: Enable the keepalived service and start it
+  systemd:
+    name: keepalived
+    state: restarted
+    daemon_reload: yes
+    enabled: yes
+

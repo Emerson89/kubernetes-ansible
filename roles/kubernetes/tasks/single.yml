@@ -63,6 +63,25 @@
   when: 
    - network_plugin == 'flannel' 
 
+- name: Add a repository calico
+  kubernetes.core.helm_repository:
+    name: projectcalico
+    repo_url: https://docs.tigera.io/calico/charts
+  become_user: "{{ ansible_user }}"
+  when: 
+   - network_plugin == 'calico'   
+
+- name: Install calico pod network
+  kubernetes.core.helm:
+    name: calico
+    chart_ref: projectcalico/tigera-operator
+    release_namespace: tigera-operator
+    create_namespace: true
+    chart_version: v3.28.1
+  become_user: "{{ ansible_user }}"
+  when: 
+   - network_plugin == 'calico'
+
 - name: Add a repository cilium
   kubernetes.core.helm_repository:
     name: cilium

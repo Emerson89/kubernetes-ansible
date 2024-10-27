@@ -40,4 +40,5 @@ hosts
 join-command-multi
 Vagrantfilebkp
 script.sh
-ha_proxy.yml
+inventory
+playbook-local.yaml

@@ -6,7 +6,7 @@ vms = {
 'master-one' => {'memory' => '2048', 'cpus' => '2', 'ip' => '10', 'box' => 'ubuntu/focal64'},
 'master-two' => {'memory' => '2048', 'cpus' => '2', 'ip' => '11', 'box' => 'ubuntu/focal64'},
 'master-tree' => {'memory' => '2048', 'cpus' => '2', 'ip' => '12', 'box' => 'ubuntu/focal64'},
-'worker-one' => {'memory' => '1048', 'cpus' => '2', 'ip' => '13', 'box' => 'ubuntu/focal64'},
+'worker-one' => {'memory' => '2048', 'cpus' => '2', 'ip' => '13', 'box' => 'ubuntu/focal64'},
 }
 
 Vagrant.require_version ">= 1.8.0"
@@ -31,7 +31,7 @@ Vagrant.configure('2') do |config|
           ansible.extra_vars = {
             ansible_user: "vagrant"
           }
-       end
+      end
        my.vm.provider 'virtualbox' do |vb|
           vb.memory = conf['memory']
           vb.cpus = conf['cpus']
