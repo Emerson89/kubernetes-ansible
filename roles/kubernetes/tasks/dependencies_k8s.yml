@@ -59,6 +59,13 @@
   with_items:
     - 'Environment="KUBELET_EXTRA_ARGS=--node-ip={{ ip }}"'
 
+- name: Configure kubelet params for Kubernetes default
+  lineinfile:
+    path: /etc/default/kubelet
+    line: "{{ item }}"
+  with_items:
+    - 'KUBELET_EXTRA_ARGS=--node-ip={{ ip }}'
+
 - name: Enable the kubelet service and start it
   systemd:
     name: kubelet
